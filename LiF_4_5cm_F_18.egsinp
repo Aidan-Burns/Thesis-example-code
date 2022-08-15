@@ -1,0 +1,1212 @@
+
+###############################################################################
+# MC ring Model at 10cm F-18
+###############################################################################
+
+###############################################################################
+# RUN CONTROL 
+###############################################################################
+
+:start run control:
+	ncase = 1e10 #    #Number of histories to run 
+	geometry error limit = 500000000
+:stop run control:
+
+###############################################################################
+# GEOMETRY DEFINITION
+###############################################################################
+
+:start geometry definition:
+
+	# Air box outside whole structure
+	:start geometry:
+		name = outer_air_box
+		library = egs_box
+		box size = 30 50 20       #30 50 20
+		:start media input:
+			media = air
+		:stop media input:
+	:stop geometry:
+
+   
+# Syringe geometry
+	:start geometry:
+		name = syringe
+		library = egs_cones
+		type = EGS_ConeStack
+		
+        axis =  0 0 -7.843 0 0 1  # Going in the +z direction    # Offset of -1.793 + 0.7, adding the small part of the syrine 
+
+    
+        #Middle Rod         
+        :start layer:
+			thickness = 5.35   
+            top radii = 0.24 0.295 0.75
+			bottom radii = 0.24 0.295 0.75 
+			media = air plastic PMMA
+		:stop layer:
+    
+    #Starting with the Neddle part of the syrine 
+    #To base of blue bit
+        :start layer:
+			thickness = 0.7
+			top radii = 0.15 0.315
+			bottom radii = 0.15 0.315
+			media = air plastic
+		:stop layer:
+    
+    #Blue bit exposed and small bit sticking out
+        :start layer:
+			thickness = 0.1
+			top radii = 0.05 0.25    #Thickness of plastic is 0.1 for syrine and 0.1 for blue bit
+			bottom radii = 0.05 0.25
+			media = air plastic
+		:stop layer:
+
+		
+		:start layer:
+			thickness = 0.7 
+			top radii = 0.05 0.15 0.3 0.4   
+			bottom radii = 0.05 0.15 0.3 0.4
+			media = air plastic air plastic
+		:stop layer:
+		
+		
+        :start layer:
+			thickness = 0.091 
+			top radii = 0.05 0.685  
+			bottom radii = 0.05 0.685 
+			media = air plastic 
+		:stop layer:
+		
+		:start layer:
+			thickness = 1.804
+			top radii = 0.594 0.685
+			bottom radii = 0.594 0.685 
+			media = water plastic       #~2ml of water, check. The -1.793 offests this so that the water!, radionuclide places this in the middle!
+		:stop layer:
+	
+	
+		:start layer:
+			thickness = 0.5 
+			top radii = 0.685
+			bottom radii = 0.685 
+			media = plastic 
+		:stop layer:
+		
+		:start layer:
+			thickness = 4.196 
+			top radii = 0.594 0.685
+			bottom radii = 0.594 0.685 
+			media = air plastic 
+		:stop layer:
+			
+			
+	:stop geometry:
+    
+
+# The PMMA set up, 4 rods and sheet 
+   :start geometry:
+        name = PMMA_sheet
+		library = egs_box
+		box size = 30 50 0.6 
+		:start media input:
+			media = PMMA
+		:stop media input:
+    
+    
+    :stop geometry:
+    
+    #translate the PMMA sheet down
+    :start geometry:
+        name        = PMMA_sheet_transform
+        library     = egs_gtransformed
+        my geometry = PMMA_sheet
+        :start transformation:
+            translation = 0 0 -8.143   # x y z    #8.102 from 0,0 to base of sheet. Add 3mm to centre base. 7.843 + 0.3 
+            rotation    = 0 0 0
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    
+    #Rod_1 with Ring 
+    :start geometry:
+		name = Rod_1
+		library = egs_cones
+		type = EGS_ConeStack
+		axis =  0 4.5 -7.843 0 0 1  # Going in the +z direction    x y z where x,y would be poisiton and z the value at the middle from centre. 
+    
+        :start layer:
+			thickness = 7.243  #7.843 - 0.6  
+			top radii = 1  
+			bottom radii = 1
+			media = PMMA
+		:stop layer:
+        
+        :start layer:
+			thickness = 1.2  #7.843 - 0.6  
+			top radii = 1 1.35  
+			bottom radii = 1 1.35
+			media = PMMA plastic
+		:stop layer:
+        
+        :start layer:
+			thickness = 6.557  #15 - 7.243-1.2 
+			top radii = 1  
+			bottom radii = 1 
+			media = PMMA 
+		:stop layer:
+    :stop geometry:
+
+    
+    #Lif_Box
+     :start geometry:
+        name = LiF_Box
+		library = egs_box
+		box size = 0.32 0.09 0.32 #x y z #0.32 0.09 0.32 
+		:start media input:
+			media = LiF
+		:stop media input:
+    :stop geometry:
+    
+    # Translate LiF Box to Ring 
+    :start geometry:
+        name        = LiF_transform 
+        library     = egs_gtransformed
+        my geometry = LiF_Box
+        :start transformation:
+            
+            translation = 0 3.2270 0  # x y z    4.5-1-0.35+0.032 = 3.182 = Distance to front of LiF 
+                                        # 3.182 + 0.09/2 = 3.272 = Distance to the back of the LiF ring
+                                                                 #Distance to surface and the 0.001 cm thick = 10 micro metre
+        #    rotation    = 0 0 1.570796327   # rotate by pi over 2 = 1.570796327    
+        :stop transformation:
+    :stop geometry:
+    
+        
+    #Lif Scoring Box
+     :start geometry:
+        name = Skin_scoring_box
+		library = egs_box
+		box size = 0.32 0.001 0.32 #x y z   10 micro metre thick 
+		:start media input:
+			media = LiF
+		:stop media input:
+    
+    
+    :stop geometry:
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_05_15
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.183 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+        
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_20_30
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1845 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+        #    rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_35_45
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1860 0  # x y z    3.272 2 to the back of the scoring box 
+                                                #3.272 - 0.09 + 0.0045 = 3.1865
+  # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_50_60
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1875 0  # x y z     3.182 to the front of the scoring box 
+                                                #3.182 + 4*0.0015 = 3.188
+# rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+
+    :stop geometry:
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_65_75
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1890 0  # x y z   3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+ # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_80_90
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1905 0  # x y z     3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    
+
+    ###translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_95_105
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1920 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_110_120
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1935 0  # x y z     3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+        :stop transformation:
+    :stop geometry:
+
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_125_135
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1950 0  # x y z  3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_140_150
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1965 0  # x y z   3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_155_165
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1980 0  # x y z   3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:    
+    
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_170_180
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.1995 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:   
+    
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_185_195
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2010 0  # x y z     3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+            #rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:   
+    
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_200_210
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2025 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:   
+    
+
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_215_225
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2040 0  # x y z   3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:   
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_230_240
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2055 0  # x y z   3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           #ate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:   
+
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_245_255
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2070 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+         #   rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:   
+
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_260_270
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2085 0  # x y z   3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+         #   rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:   
+
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_275_285
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation =0 3.2100 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+            #rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:   
+
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_290_300
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2115 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_305_315
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2130 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+       #     rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_320_330
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2145 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+##################################    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_335_345
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2160 0 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+        #    rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_350_360
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 3.2175 0 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+         #   rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_365_375
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 3.2190 0 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_380_390
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2205 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_395_405
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2220 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_410_420
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2235 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+            #rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_425_435
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2250 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+            #rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_440_450
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2265 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_455_465
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2280 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_470_480
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2295 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+            #rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_485_495
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2310 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_500_510
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2325 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_515_525
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2340 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+            #rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_530_540
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2355 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_545_555
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2370 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_560_570
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2385 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+    #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_575_585
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2400 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+            #rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:  
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_590_600
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2415 0 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+         #   rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_605_615
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2430 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_620_630
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2445 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+         #   rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+########################
+
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_635_645
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2460 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+         #   rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_650_660
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2475 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_665_675
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2490 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+ 
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_680_690
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2505 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+         #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+             ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_695_705
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2520 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+         #   rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_710_720
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2535 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_725_735
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2550 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+       #     rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_740_750
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2565 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_755_765
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2580 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+        #    rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_770_780
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2595 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+        #    rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_785_795
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2610 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+            #rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry: 
+    
+        #translate LiF Scoring box to ring 
+    :start geometry:
+        name        = Skin_scoring_box_transform_800_810
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2625 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+            #rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    :start geometry:
+        name        = Skin_scoring_box_transform_815_825
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2640 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+         #   rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    :start geometry:
+        name        = Skin_scoring_box_transform_830_840
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2655 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    :start geometry:
+        name        = Skin_scoring_box_transform_845_855
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2670 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    :start geometry:
+        name        = Skin_scoring_box_transform_860_870
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2685 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+           # rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+    :start geometry:
+        name        = Skin_scoring_box_transform_875_885
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2700 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+
+    :start geometry:
+        name        = Skin_scoring_box_transform_890_900
+        library     = egs_gtransformed
+        my geometry = Skin_scoring_box
+        :start transformation:
+            translation = 0 3.2715 0  # x y z    3.182 to the front of the scoring box 
+                                                #3.182 + 0.0015 = 3.1835
+          #  rotation    = 0 0 1.570796327   # rotate by pi over 2    
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+
+    
+    :start geometry:
+		name = Rod_1_and_LiF_Box
+		library = egs_genvelope
+		base geometry = Rod_1
+		inscribed geometries = LiF_transform 
+	:stop geometry:
+    
+    :start geometry:
+		name = Rod_1_and_LiF_Box_and_scoring
+		library = egs_genvelope
+		base geometry = Rod_1_and_LiF_Box
+		inscribed geometries = Skin_scoring_box_transform_05_15 Skin_scoring_box_transform_20_30 Skin_scoring_box_transform_35_45 Skin_scoring_box_transform_50_60 Skin_scoring_box_transform_65_75 Skin_scoring_box_transform_80_90 Skin_scoring_box_transform_95_105 Skin_scoring_box_transform_110_120 Skin_scoring_box_transform_125_135 Skin_scoring_box_transform_140_150 Skin_scoring_box_transform_155_165 Skin_scoring_box_transform_170_180 Skin_scoring_box_transform_185_195 Skin_scoring_box_transform_200_210 Skin_scoring_box_transform_215_225 Skin_scoring_box_transform_230_240 Skin_scoring_box_transform_245_255 Skin_scoring_box_transform_260_270 Skin_scoring_box_transform_275_285 Skin_scoring_box_transform_290_300 Skin_scoring_box_transform_305_315 Skin_scoring_box_transform_320_330 Skin_scoring_box_transform_335_345 Skin_scoring_box_transform_350_360 Skin_scoring_box_transform_365_375 Skin_scoring_box_transform_380_390 Skin_scoring_box_transform_395_405 Skin_scoring_box_transform_410_420 Skin_scoring_box_transform_425_435 Skin_scoring_box_transform_440_450 Skin_scoring_box_transform_455_465 Skin_scoring_box_transform_470_480 Skin_scoring_box_transform_485_495 Skin_scoring_box_transform_500_510 Skin_scoring_box_transform_515_525 Skin_scoring_box_transform_530_540 Skin_scoring_box_transform_545_555 Skin_scoring_box_transform_560_570 Skin_scoring_box_transform_575_585 Skin_scoring_box_transform_590_600 Skin_scoring_box_transform_605_615 Skin_scoring_box_transform_620_630 Skin_scoring_box_transform_635_645 Skin_scoring_box_transform_650_660 Skin_scoring_box_transform_665_675 Skin_scoring_box_transform_680_690 Skin_scoring_box_transform_695_705 Skin_scoring_box_transform_710_720 Skin_scoring_box_transform_725_735 Skin_scoring_box_transform_740_750 Skin_scoring_box_transform_755_765 Skin_scoring_box_transform_770_780 Skin_scoring_box_transform_785_795 Skin_scoring_box_transform_800_810 Skin_scoring_box_transform_815_825 Skin_scoring_box_transform_830_840 Skin_scoring_box_transform_845_855 Skin_scoring_box_transform_860_870 Skin_scoring_box_transform_875_885 Skin_scoring_box_transform_890_900 
+	:stop geometry:
+    
+    
+    :start geometry:
+		name = Rod_2
+		library = egs_cones
+		type = EGS_ConeStack
+		
+    axis =  0 -4.5 -7.843 0 0 1 
+        :start layer:
+			thickness = 15 
+			top radii = 1  
+			bottom radii = 1
+			media = PMMA
+		:stop layer:
+    :stop geometry:
+    
+     :start geometry:
+		name = Rod_3
+		library = egs_cones
+		type = EGS_ConeStack
+		
+    axis =  -4.5 0 -7.843  0 0 1 
+        :start layer:
+			thickness = 15 
+			top radii = 1  
+			bottom radii = 1
+			media = PMMA
+		:stop layer:
+    :stop geometry:
+    
+    :start geometry:
+		name = Rod_4
+		library = egs_cones
+		type = EGS_ConeStack    
+        
+    axis =  4.5 0 -7.843   0 0 1 
+        :start layer:
+			thickness = 15 
+			top radii = 1  
+			bottom radii = 1
+			media = PMMA
+		:stop layer:
+    :stop geometry:
+    
+    
+
+    
+    
+# Inscribe all the geometires inside each other, with the outer_air_box as the base! 
+	:start geometry:
+		name = Inscribed_Geometry 
+		library = egs_genvelope
+		base geometry = outer_air_box
+		inscribed geometries = syringe PMMA_sheet_transform Rod_2 Rod_3 Rod_4 Rod_1_and_LiF_Box_and_scoring 
+	:stop geometry:
+
+    
+    simulation geometry = Inscribed_Geometry
+:stop geometry definition:
+		 
+###############################################################################
+# ADD MEDIA DEFINITION
+###############################################################################
+
+:start media definition:
+	# Cutoff energies
+	ae = 0.521                               # ae  = lowest  energy for electron production (kinetic+0.511)
+	ap = 0.01                                # ap  = lowest  energy for photon production   (kinetic)
+	ue = 50.511                              # ue  = maximum energy for electrons (kinetic+0.511)
+	up = 50                                  # up  = maximum energy for photons   (kinetic)
+    
+    :start air: 
+		density correction file = air_dry_nearsealevel
+	:stop air:
+	
+    :start plastic:
+		density correction file = polypropylene
+	:stop plastic:
+    
+    :start PMMA:
+		density correction file = polymethylmethacrylate__lucite___perspex___plexiglas_
+	:stop PMMA:
+    
+    :start LiF: 
+        density correction file = lithiumfluoride
+    :stop LiF: 
+    
+    :start water:
+		density correction file = water_liquid
+	:stop water:
+
+    
+:stop media definition:
+
+
+###########################################################
+### SOURCE
+###########################################################
+:start source definition:
+
+        
+    ### Syringe source
+    :start source:
+        name = syringe_source # can be any name
+        library = egs_radionuclide_source
+        geometry = Inscribed_Geometry    #Name of final Geometry 
+        region selection = IncludeSelected
+		selected regions = 21 #From EGS_View
+
+        
+        #volume of 2ml
+        
+        :start shape: # Origin is a point             # source shape is collimated, default is isotropic, so this is isotropic? 
+            type = cylinder
+        	radius = 0.594
+       		height = 1.804
+        	axis = 0 0 1     #Axis + Z direction  
+        	midpoint = 0 0 0 
+            :start media input:
+        	media = water
+        	:stop media input:
+        :stop shape:
+
+    
+     	         
+        :start spectrum:
+        	type = radionuclide
+        	nuclide = F-18
+        	extra transition approximation = On
+        :stop spectrum:
+     
+     :stop source:
+     	         
+ 
+
+    # use the source by this name in the simulation
+    simulation source = syringe_source
+
+:stop source definition:
+
+
+####################################################################
+### MC transport parameters
+####################################################################
+
+#  Modify here parameters that should be different from their defaults.
+:start MC transport parameter:
+    Global ECUT                    = 0.521          # Global electron transport cutoff
+    Global PCUT                    = 0.001          # Global photon transport cutoff
+    Global SMAX                    = 1e10           # Global maximum step-size restriction for e- transport
+    ESTEPE                         = 0.25           # Default is 0.25
+    XIMAX                          = 0.5            # Default is 0.5, max. value is 1.
+    Boundary crossing algorithm    = exact          # exact (default), PRESTA-I
+    Skin depth for BCA             = 3              # Default value is 3 for exact boundary crossing
+    Electron-step algorithm        = PRESTA-II      # PRESTA-II (default),PRESTA-I
+    Spin effects                   = On             # On (default),Off
+    Brems angular sampling         = KM             # Simple,KM (default)
+    Brems cross sections           = BH             # BH (default),NIST
+    Pair angular sampling          = Simple         # Off, Simple (default),KM
+    Triplet production             = Off            # On or Off (default)
+    Electron Impact Ionization     = Off            # On, Off (default), casnati, kolbenstvedt, gryzinski
+    Bound Compton scattering       = norej          # On, Off, Simple, norej (default)
+    Radiative Compton corrections  = Off            # On,  Off (default)
+    Rayleigh scattering            = Off            # On ,Off (default), custom
+    Photoelectron angular sampling = On             # On (default),Off
+    Atomic relaxations             = On             # On (default),Off
+    Photon cross sections          = xcom           # si, epdl, xcom (default) or user-supplied
+    Photon cross-sections output   = Off            # Off (default) or On
+    Photonuclear attenuation       = Off            # Off (default) or On
+    Photonuclear cross sections    = default        # default (default) or user-supplied
+:stop MC transport parameter:
+
+####################################################################
+### AUSGAB objects
+####################################################################
+
+:start ausgab object definition:
+    
+    ## Dose Scoring 
+    :start ausgab object:
+        name= doseScoring
+        library = egs_dose_scoring
+        medium dose = yes  #343-402 
+        dose regions = 343 344 345 346 347 348 349 350 351 352 353 354 355 356 357 358 359 360 361 362 363 364 365 366 367 368 369 370 371 372 373 374 375 376 377 378 379 380 381 382 383 384 385 386 387 388 389 390 391 392 393 394 395 396 397 398 399 400 401 402
+        volume =  0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225 0.0001225
+ 
+    :stop ausgab object:
+
+    :start ausgab object:
+          library                  = egs_phsp_scoring
+          name                     = Energy_Scoring_4_5cm_F_18
+          output format            = EGSnrc
+          particle type            = all
+          score multiple crossers  = yes          #  no  (default) or yes (EGSnrc format only)
+
+    # Method 2: score particles on exiting one region and entering another 339 = Plastic  342 = Entire LiF layer 
+          from regions             = 339 #list of exit region numbers
+          to regions               = 342 #list of entry region numbers
+
+    :stop ausgab object:
+    
+    
+    
+    
+:stop ausgab object definition:

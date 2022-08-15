@@ -1,0 +1,346 @@
+###############################################################################
+# Experiment simulation at 10cm 
+###############################################################################
+
+###############################################################################
+# RUN CONTROL 
+###############################################################################
+
+:start run control:
+	ncase = 1e10#   e2
+	geometry error limit = 5000000
+:stop run control:
+
+###############################################################################
+# GEOMETRY DEFINITION
+###############################################################################
+
+:start geometry definition:
+
+	# Air box outside whole structure
+	:start geometry:
+		name = outer_air_box
+		library = egs_box
+		box size = 30 50 20       #30 50 20
+		:start media input:
+			media = air
+		:stop media input:
+	:stop geometry:
+
+   
+# Syringe geometry
+	:start geometry:
+		name = syringe
+		library = egs_cones
+		type = EGS_ConeStack
+		
+    axis =  0 0 -7.843 0 0 1  # Going in the +z direction    # Offset of -1.793 + 0.7, adding the small part of the syrine 
+
+    
+        #Middle Rod         
+        :start layer:
+			thickness = 5.35    #0.1 layer of plastic for syrine neddle 
+		#	top radii = 0.24 0.34 0.75  #Total height is 5.35, need to measure how deep the hole is 
+            #	bottom radii = 0.24 0.34 0.75 
+            top radii = 0.24 0.295 0.75
+			bottom radii = 0.24 0.295 0.75 
+			media = air plastic PMMA
+		:stop layer:
+    
+    #Starting with the Neddle part of the syrine 
+    #To base of blue bit
+        :start layer:
+			thickness = 0.7
+			top radii = 0.15 0.315
+			bottom radii = 0.15 0.315
+			media = air plastic
+		:stop layer:
+    
+    #Blue bit exposed and small bit sticking out
+        :start layer:
+			thickness = 0.1
+			top radii = 0.05 0.25    #Thickness of plastic is 0.1 for syrine and 0.1 for blue bit
+			bottom radii = 0.05 0.25
+			media = air plastic
+		:stop layer:
+
+		
+		:start layer:
+			thickness = 0.7 
+			top radii = 0.05 0.15 0.3 0.4   
+			bottom radii = 0.05 0.15 0.3 0.4
+			media = air plastic air plastic
+		:stop layer:
+		
+		
+        :start layer:
+			thickness = 0.091 
+			top radii = 0.05 0.685  
+			bottom radii = 0.05 0.685 
+			media = air plastic 
+		:stop layer:
+		
+		:start layer:
+			thickness = 1.804
+			top radii = 0.594 0.685
+			bottom radii = 0.594 0.685 
+			media = water plastic       #2ml of water, check. The -1.793 offests this so that the water!, radionuclide places this in the middle!
+		:stop layer:
+	
+	
+		:start layer:
+			thickness = 0.5 
+			top radii = 0.685
+			bottom radii = 0.685 
+			media = plastic 
+		:stop layer:
+		
+		:start layer:
+			thickness = 4.196 
+			top radii = 0.594 0.685
+			bottom radii = 0.594 0.685 
+			media = air plastic 
+		:stop layer:
+			
+			
+	:stop geometry:
+    
+
+# The PMMA set up, 4 rods and sheet 
+   :start geometry:
+        name = PMMA_sheet
+		library = egs_box
+		box size = 30 50 0.6 
+		:start media input:
+			media = PMMA
+		:stop media input:
+    
+    
+    :stop geometry:
+    
+    #translate the PMMA sheet down
+    :start geometry:
+        name        = PMMA_sheet_transform
+        library     = egs_gtransformed
+        my geometry = PMMA_sheet
+        :start transformation:
+            translation = 0 0 -8.143   # x y z    #8.102 from 0,0 to base of sheet
+            rotation    = 0 0 0
+            ## rotation is first!
+        :stop transformation:
+    :stop geometry:
+    
+
+    
+    
+
+
+    
+    :start geometry: 
+        name = Tissue
+		library = egs_cones
+		type = EGS_ConeStack
+		
+        axis =  0 0 -7.843 0 0 1  # Going in the +z direction    # Offset of -1.793 + 0.7, adding the small part of the syrine 
+
+        :start layer:
+			thickness = 6.843 
+            top radii = 2.685            #2cm of air 
+			bottom radii = 2.685 
+			media = air 
+		:stop layer: 
+        
+        
+        :start layer:
+			thickness = 0.84  #1 -.35/2  
+            top radii = 8.65 8.85 10.65                 #Syrine is 0.685 thick, skin in contact, 2mm skin 2cm tissue 
+			bottom radii = 8.65 8.85 10.65     
+			media = air skin tissue
+		:stop layer:
+		
+		:start layer:
+			thickness = 0.32  #7.843 -.35/2  
+            top radii = 8.65 8.6565 8.6575 8.85 10.65            
+			bottom radii = 8.65 8.6565 8.6575 8.85 10.65 #  Scoring layer between 0.0065 and 0.00075 depth! 
+			media = air skin skin_scoring skin tissue
+		:stop layer:
+		
+		:start layer:
+			thickness = 0.84  #  
+            top radii = 8.65 8.85 10.65             #Point on outer PMMA rod is 9cm from (0,0)
+			bottom radii = 8.65 8.85 10.65      
+			media = air skin tissue
+		:stop layer:
+		
+		:start layer:
+			thickness = 6 
+            top radii = 2.685            #2cm of air 
+			bottom radii = 2.685 
+			media = air 
+		:stop layer:
+        
+    :stop geometry:
+    
+    :start geometry:
+        name = Tissue_syrine
+        library = egs_genvelope
+        base geometry = Tissue
+        inscribed geometries = syringe 
+        
+    :stop geometry:
+    
+    
+    # Inscribe all the geometires inside each other, with the outer_air_box as the base! 
+	:start geometry:
+		name = Inscribed_Geometry 
+		library = egs_genvelope
+		base geometry = outer_air_box
+		inscribed geometries = Tissue_syrine PMMA_sheet_transform
+	:stop geometry:
+    
+    simulation geometry = Inscribed_Geometry
+:stop geometry definition:
+		 
+###############################################################################
+# ADD MEDIA DEFINITION
+###############################################################################
+
+:start media definition:
+	# Cutoff energies
+	ae = 0.521                               # ae  = lowest  energy for electron production (kinetic+0.511)
+	ap = 0.01                                # ap  = lowest  energy for photon production   (kinetic)
+	ue = 50.511                              # ue  = maximum energy for electrons (kinetic+0.511)
+	up = 50                                  # up  = maximum energy for photons   (kinetic)
+    
+    :start air: 
+		density correction file = air_dry_nearsealevel
+	:stop air:
+	
+    :start plastic:
+		density correction file = polypropylene
+	:stop plastic:
+    
+    :start PMMA:
+		density correction file = polymethylmethacrylate__lucite___perspex___plexiglas_
+	:stop PMMA:
+    
+    :start LiF: 
+        density correction file = lithiumfluoride
+    :stop LiF: 
+    
+    :start water:
+		density correction file = water_liquid
+	:stop water:
+	
+    :start skin: 
+		density correction file = skin_icrp
+	:stop skin:
+	
+	:start skin_scoring: 
+		density correction file = skin_icrp
+	:stop skin_scoring:
+    
+    :start tissue:
+		density correction file = tissue_soft_icrufour-component
+	:stop tissue:
+    
+:stop media definition:
+
+
+
+###########################################################
+### SOURCE
+###########################################################
+:start source definition:
+
+        
+    ### Syringe source
+    :start source:
+        name = syringe_source # can be any name
+        library = egs_radionuclide_source
+        geometry = Inscribed_Geometry    #Name of final Geometry 
+        region selection = IncludeSelected
+		selected regions = 46 #From EGS_View  The region of water
+
+        
+        #volume of 2ml
+        
+        :start shape: # Origin is a point             # source shape is collimated, default is isotropic, so this is isotropic? 
+            type = cylinder
+        	radius = 0.594
+       		height = 1.804
+        	axis = 0 0 1     #Axis + Z direction  
+        	midpoint = 0 0 0 
+            :start media input:
+        	media = water
+        	:stop media input:
+        :stop shape:
+
+    
+     	         
+        :start spectrum:
+        	type = radionuclide
+        	nuclide = Ga-68
+        	extra transition approximation = On
+        :stop spectrum:
+     
+     :stop source:
+     	         
+ 
+
+    # use the source by this name in the simulation
+    simulation source = syringe_source
+
+:stop source definition:
+
+
+####################################################################
+### MC transport parameters
+####################################################################
+
+ # Modify here parameters that should be different from their defaults.
+:start MC transport parameter:
+    Global ECUT                    = 0.521          # Global electron transport cutoff
+    Global PCUT                    = 0.001          # Global photon transport cutoff
+    Global SMAX                    = 1e10           # Global maximum step-size restriction for e- transport
+    ESTEPE                         = 0.25           # Default is 0.25
+    XIMAX                          = 0.5            # Default is 0.5, max. value is 1.
+    Boundary crossing algorithm    = exact          # exact (default), PRESTA-I
+    Skin depth for BCA             = 3              # Default value is 3 for exact boundary crossing
+    Electron-step algorithm        = PRESTA-II      # PRESTA-II (default),PRESTA-I
+    Spin effects                   = On             # On (default),Off
+    Brems angular sampling         = KM             # Simple,KM (default)
+    Brems cross sections           = BH             # BH (default),NIST
+    Pair angular sampling          = Simple         # Off, Simple (default),KM
+    Triplet production             = Off            # On or Off (default)
+    Electron Impact Ionization     = Off            # On, Off (default), casnati, kolbenstvedt, gryzinski
+    Bound Compton scattering       = norej          # On, Off, Simple, norej (default)
+    Radiative Compton corrections  = Off            # On,  Off (default)
+    Rayleigh scattering            = Off            # On ,Off (default), custom
+    Photoelectron angular sampling = On             # On (default),Off
+    Atomic relaxations             = On             # On (default),Off
+    Photon cross sections          = xcom           # si, epdl, xcom (default) or user-supplied
+    Photon cross-sections output   = Off            # Off (default) or On
+    Photonuclear attenuation       = Off            # Off (default) or On
+    Photonuclear cross sections    = default        # default (default) or user-supplied
+:stop MC transport parameter:
+####################################################################
+### AUSGAB objects
+####################################################################
+
+:start ausgab object definition:
+    
+
+    
+    ## Dose Scoring 
+    :start ausgab object:
+        name= doseScoring
+        library = egs_dose_scoring
+        medium dose = yes
+        dose regions = 13   #Skin scoirng 
+                            # h*pi(r^2 -r^2) 
+        volume =  0.01740593127 #cm^3 0.32*pi(8.6575^2-8.6565^2)     8.6565 8.6575      8.715 8.725     #Volume of Dose region needed for accurate dose calculation 
+    
+    :stop ausgab object:
+    
+:stop ausgab object definition:
